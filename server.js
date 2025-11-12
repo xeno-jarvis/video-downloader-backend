@@ -1,20 +1,19 @@
 import express from "express";
 import cors from "cors";
-import bodyParser from "body-parser";
 
 const app = express();
-app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json());
 
-app.post("/download", async (req, res) => {
-  const { url } = req.body;
-  if (!url) return res.status(400).json({ error: "No URL provided" });
+app.use(cors({
+  origin: "https://xeno-jarvis.github.io",
+  methods: ["GET", "POST"],
+  allowedHeaders: ["Content-Type"]
+}));
 
-  // Placeholder response — replace later with actual logic
-  const fakeDownloadUrl = `https://example.com/download?video=${encodeURIComponent(url)}`;
-
-  res.json({ downloadUrl: fakeDownloadUrl });
+app.post("/download", (req, res) => {
+  // example test response
+  res.json({ success: true, message: "Backend connected!" });
 });
 
-const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`Server running on port ${port}`));
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
