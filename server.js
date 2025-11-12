@@ -4,18 +4,17 @@ const ytdl = require("ytdl-core");
 
 const app = express();
 app.use(express.json());
+
 app.use(cors({
   origin: "https://xeno-jarvis.github.io",
   methods: ["GET", "POST"],
   allowedHeaders: ["Content-Type"]
 }));
 
-// Root route
 app.get("/", (req, res) => {
   res.send("YouTube Video Downloader Backend is running!");
 });
 
-// Download route
 app.post("/download", async (req, res) => {
   try {
     const { url } = req.body;
