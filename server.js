@@ -1,25 +1,26 @@
-import express from "express";
-import cors from "cors";
+// Use CommonJS syntax so Render runs it correctly
+const express = require("express");
+const cors = require("cors");
 
 const app = express();
 app.use(express.json());
 
-// Allow your frontend domain
+// Enable CORS for your frontend domain
 app.use(cors({
   origin: "https://xeno-jarvis.github.io",
   methods: ["GET", "POST"],
   allowedHeaders: ["Content-Type"]
 }));
 
-// Simple test route
+// Root route
 app.get("/", (req, res) => {
   res.send("Backend is running!");
 });
 
-// Download route for frontend
+// Test route for frontend
 app.post("/download", (req, res) => {
   res.json({ success: true, message: "Backend connected!" });
 });
 
 const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
