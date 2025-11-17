@@ -33,7 +33,7 @@ app.post('/download', async (req, res) => {
 
     try {
         // Use yt-dlp to get video info and download URL
-        const command = `yt-dlp -f "best[ext=mp4]" --get-title --get-url "${url}"`;
+        const command = `python3 -m yt_dlp -f "best[ext=mp4]" --get-title --get-url "${url}"`;
         
         exec(command, { maxBuffer: 1024 * 1024 * 10 }, (error, stdout, stderr) => {
             if (error) {
@@ -74,3 +74,4 @@ app.listen(PORT, () => {
     console.log(`✅ Server running on port ${PORT}`);
     console.log(`✅ yt-dlp backend ready`);
 });
+
