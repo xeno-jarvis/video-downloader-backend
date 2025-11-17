@@ -1,66 +1,76 @@
-const express = require("express");
-const cors = require("cors");
-const axios = require("axios");
+const express = require('express');
+const cors = require('cors');
+const { exec } = require('child_process');
+const fs = require('fs');
+const path = require('path');
 
 const app = express();
+const PORT = process.env.PORT || 10000;
+
+// Middleware
 app.use(express.json());
 app.use(cors({
-  origin: "https://xeno-jarvis.github.io",
-  methods: ["GET", "POST"],
-  allowedHeaders: ["Content-Type"]
+    origin: 'https://xeno-jarvis.github.io',
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type']
 }));
 
-app.get("/", (req, res) => {
-  res.send("YouTube Video Downloader Backend is running!");
+// Health check
+app.get('/', (req, res) => {
+    res.json({ status: 'YouTube Downloader Backend (yt-dlp) is running!' });
 });
 
-app.post("/download", async (req, res) => {
-  try {
+// Download endpoint
+app.post('/download', async (req, res) => {
     const { url } = req.body;
 
-    if (!url) {
-      return res.status(400).json({ success: false, message: "Invalid YouTube URL." });
+    if (!url || !url.includes('youtube.com') && !url.includes('youtu.be')) {
+        return res.status(400).json({ 
+            success: false, 
+            message: 'Invalid YouTube URL' 
+        });
     }
 
-    // Extract video ID from URL
-    const videoId = url.match(/(?:v=|\/|youtu\.be\/)([0-9A-Za-z_-]{11})/);
-    if (!videoId) {
-      return res.status(400).json({ success: false, message: "Invalid YouTube URL." });
+    try {
+        // Use yt-dlp to get video info and download URL
+        const command = `yt-dlp -f "best[ext=mp4]" --get-title --get-url "${url}"`;
+        
+        exec(command, { maxBuffer: 1024 * 1024 * 10 }, (error, stdout, stderr) => {
+            if (error) {
+                console.error('yt-dlp error:', error);
+                return res.status(500).json({ 
+                    success: false, 
+                    message: 'Failed to process video. Please try again.' 
+                });
+            }
+
+            const lines = stdout.trim().split('\n');
+            if (lines.length >= 2) {
+                const title = lines[0];
+                const downloadUrl = lines[1];
+
+                res.json({
+                    success: true,
+                    title: title,
+                    downloadUrl: downloadUrl
+                });
+            } else {
+                res.status(500).json({ 
+                    success: false, 
+                    message: 'Could not extract video information' 
+                });
+            }
+        });
+    } catch (error) {
+        console.error('Server error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Server error occurred' 
+        });
     }
-
-    // Call RapidAPI YouTube MP3 Audio Video Downloader
-    const options = {
-      method: 'GET',
-      url: `https://youtube-mp3-audio-video-downloader.p.rapidapi.com/dl`,
-      params: {
-        id: videoId[1]
-      },
-      headers: {
-        'x-rapidapi-key': '6ccc670b04msh4e5b51489b71a35p1dada6jsn5043167fb9ab',
-        'x-rapidapi-host': 'youtube-mp3-audio-video-downloader.p.rapidapi.com'
-      }
-    };
-
-    const response = await axios.request(options);
-    const data = response.data;
-
-    if (data && data.title) {
-      // Get the download link
-      const downloadUrl = data.link || null;
-      
-      res.json({
-        success: true,
-        title: data.title,
-        downloadUrl: downloadUrl
-      });
-    } else {
-      res.status(500).json({ success: false, message: "Failed to process video." });
-    }
-  } catch (err) {
-    console.error("Error:", err.message);
-    res.status(500).json({ success: false, message: "Failed to process video." });
-  }
 });
 
-const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
+app.listen(PORT, () => {
+    console.log(`✅ Server running on port ${PORT}`);
+    console.log(`✅ yt-dlp backend ready`);
+});
