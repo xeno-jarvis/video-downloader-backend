@@ -6,9 +6,9 @@
   "dependencies": {
     "express": "^4.18.2",
     "cors": "^2.8.5",
-"@distube/ytdl-core": "^4.14.4"  },
-  "scripts": {
+    "axios": "^1.6.0"  },  "scripts": {
     "start": "node server.js"
   }
 }
+
 
