@@ -4,7 +4,6 @@ const axios = require("axios");
 
 const app = express();
 app.use(express.json());
-
 app.use(cors({
   origin: "https://xeno-jarvis.github.io",
   methods: ["GET", "POST"],
@@ -18,42 +17,41 @@ app.get("/", (req, res) => {
 app.post("/download", async (req, res) => {
   try {
     const { url } = req.body;
-    
+
     if (!url) {
       return res.status(400).json({ success: false, message: "Invalid YouTube URL." });
     }
-    
+
     // Extract video ID from URL
-    const videoId = url.match(/(?:v=|\/)([0-9A-Za-z_-]{11})/);
+    const videoId = url.match(/(?:v=|\/|youtu\.be\/)([0-9A-Za-z_-]{11})/);
     if (!videoId) {
       return res.status(400).json({ success: false, message: "Invalid YouTube URL." });
     }
-    
-    // Call RapidAPI YouTube Media Downloader
+
+    // Call RapidAPI YouTube MP3 Audio Video Downloader
     const options = {
       method: 'GET',
-      url: 'https://youtube-media-downloader.p.rapidapi.com/v2/video/details',
+      url: `https://youtube-mp3-audio-video-downloader.p.rapidapi.com/dl`,
       params: {
-        videoId: videoId[1],
-        urlAccess: 'normal'
+        id: videoId[1]
       },
       headers: {
         'x-rapidapi-key': '6ccc670b04msh4e5b51489b71a35p1dada6jsn5043167fb9ab',
-        'x-rapidapi-host': 'youtube-media-downloader.p.rapidapi.com'
+        'x-rapidapi-host': 'youtube-mp3-audio-video-downloader.p.rapidapi.com'
       }
     };
-    
+
     const response = await axios.request(options);
     const data = response.data;
-    
+
     if (data && data.title) {
-      // Get the highest quality video URL
-      const videoUrl = data.videos && data.videos.items && data.videos.items[0] && data.videos.items[0].url;
+      // Get the download link
+      const downloadUrl = data.link || null;
       
       res.json({
         success: true,
         title: data.title,
-        downloadUrl: videoUrl || data.url
+        downloadUrl: downloadUrl
       });
     } else {
       res.status(500).json({ success: false, message: "Failed to process video." });
