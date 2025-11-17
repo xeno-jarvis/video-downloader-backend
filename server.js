@@ -23,7 +23,7 @@ app.post("/download", async (req, res) => {
       return res.status(400).json({ success: false, message: "Invalid YouTube URL." });
     }
 
-    const info = await ytdl.getInfo(url);
+    const info = await ytdl.getInfo(urlurl, { lang: 'en' });
     const title = info.videoDetails.title;
     const format = ytdl.chooseFormat(info.formats, { quality: "highest" });
 
@@ -40,4 +40,5 @@ app.post("/download", async (req, res) => {
 
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
+
 
