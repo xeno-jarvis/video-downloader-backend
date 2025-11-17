@@ -1,14 +1,19 @@
 {
-  "name": "video-downloader-backend",
+  "name": "youtube-downloader-backend",
   "version": "1.0.0",
+  "description": "YouTube video downloader backend using yt-dlp",
   "main": "server.js",
-  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": ["youtube", "downloader", "yt-dlp"],
+  "author": "xeno-jarvis",
+  "license": "MIT",
   "dependencies": {
     "express": "^4.18.2",
-    "cors": "^2.8.5",
-    "axios": "^1.6.0"  },  "scripts": {
-    "start": "node server.js"
+    "cors": "^2.8.5"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
-
-
